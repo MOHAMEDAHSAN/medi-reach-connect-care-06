@@ -1,194 +1,97 @@
 
-import React, { useState, useEffect } from 'react';
-import { TabBar } from "@/components/tab-bar";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useState } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MedicinesTable } from "@/components/pharmacy/medicines-table";
 import { SuppliersTable } from "@/components/pharmacy/suppliers-table";
-import { PurchasesTable } from "@/components/pharmacy/purchases-table";
 import { SalesTable } from "@/components/pharmacy/sales-table";
-import { HealthCard } from "@/components/health-card";
-import { ArrowUpRight, PackageSearch, Users, ShoppingCart, CreditCard } from "lucide-react";
-import { pharmacyService } from "@/services/pharmacyService";
+import { PurchasesTable } from "@/components/pharmacy/purchases-table";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+import { MedConnectLogo } from "@/components/med-connect-logo";
+import { MobileNavigation } from "@/components/mobile-navigation";
+
+// Navigation items for both desktop and mobile
+const navigationItems = [
+  { title: "Dashboard", href: "/" },
+  { title: "Health Risk Assessment", href: "/risk-assessment" }
+];
 
 export function PharmacyDashboard() {
-  const [activeTab, setActiveTab] = useState("medicines");
   const [searchQuery, setSearchQuery] = useState("");
   
-  const [medicineCount, setMedicineCount] = useState(0);
-  const [supplierCount, setSupplierCount] = useState(0);
-  const [purchaseCount, setPurchaseCount] = useState(0);
-  const [saleCount, setSaleCount] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
-  
-  useEffect(() => {
-    const fetchCounts = async () => {
-      setIsLoading(true);
-      try {
-        const medicines = await pharmacyService.getMedicines();
-        const suppliers = await pharmacyService.getSuppliers();
-        const purchases = await pharmacyService.getPurchases();
-        const sales = await pharmacyService.getSales();
-        
-        setMedicineCount(medicines.length);
-        setSupplierCount(suppliers.length);
-        setPurchaseCount(purchases.length);
-        setSaleCount(sales.length);
-      } catch (error) {
-        console.error('Error fetching counts:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    fetchCounts();
-  }, []);
-
-  const renderActiveTabContent = () => {
-    switch (activeTab) {
-      case "medicines":
-        return <MedicinesTable searchQuery={searchQuery} />;
-      case "suppliers":
-        return <SuppliersTable searchQuery={searchQuery} />;
-      case "purchases":
-        return <PurchasesTable searchQuery={searchQuery} />;
-      case "sales":
-        return <SalesTable searchQuery={searchQuery} />;
-      default:
-        return <MedicinesTable searchQuery={searchQuery} />;
-    }
-  };
-
   return (
-    <div className="pb-20">
-      {/* Header */}
-      <div className="bg-white py-4 px-4 mb-4 shadow-sm">
-        <h1 className="text-2xl font-bold">Pharmacy Inventory Management</h1>
-        <p className="text-gray-500">Manage your medicines, suppliers, purchases, and sales</p>
-      </div>
-
-      {/* Dashboard Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4">
-        <HealthCard 
-          title="Total Medicines" 
-          icon={<PackageSearch />}
-          indicatorColor="green"
-        >
-          <div className="flex justify-between items-center">
-            <p className="text-2xl font-bold">{isLoading ? '...' : medicineCount}</p>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="text-apple-blue"
-              onClick={() => setActiveTab("medicines")}
-            >
-              View <ArrowUpRight size={16} />
-            </Button>
-          </div>
-        </HealthCard>
-        
-        <HealthCard 
-          title="Suppliers" 
-          icon={<Users />}
-          indicatorColor="blue"
-        >
-          <div className="flex justify-between items-center">
-            <p className="text-2xl font-bold">{isLoading ? '...' : supplierCount}</p>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="text-apple-blue"
-              onClick={() => setActiveTab("suppliers")}
-            >
-              View <ArrowUpRight size={16} />
-            </Button>
-          </div>
-        </HealthCard>
-        
-        <HealthCard 
-          title="Recent Purchases" 
-          icon={<ShoppingCart />}
-          indicatorColor="yellow"
-        >
-          <div className="flex justify-between items-center">
-            <p className="text-2xl font-bold">{isLoading ? '...' : purchaseCount}</p>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="text-apple-blue"
-              onClick={() => setActiveTab("purchases")}
-            >
-              View <ArrowUpRight size={16} />
-            </Button>
-          </div>
-        </HealthCard>
-        
-        <HealthCard 
-          title="Recent Sales" 
-          icon={<CreditCard />}
-          indicatorColor="red"
-        >
-          <div className="flex justify-between items-center">
-            <p className="text-2xl font-bold">{isLoading ? '...' : saleCount}</p>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="text-apple-blue"
-              onClick={() => setActiveTab("sales")}
-            >
-              View <ArrowUpRight size={16} />
-            </Button>
-          </div>
-        </HealthCard>
-      </div>
-
-      {/* Pharmacy Content Tabs */}
-      <div className="bg-white shadow-sm rounded-xl mx-4">
-        <div className="flex justify-between items-center p-4 border-b">
-          <div className="flex space-x-4">
-            <button 
-              onClick={() => setActiveTab("medicines")}
-              className={`px-3 py-2 font-medium rounded-lg text-sm ${activeTab === "medicines" ? "bg-apple-blue text-white" : "text-gray-600"}`}
-            >
-              Medicines
-            </button>
-            <button 
-              onClick={() => setActiveTab("suppliers")}
-              className={`px-3 py-2 font-medium rounded-lg text-sm ${activeTab === "suppliers" ? "bg-apple-blue text-white" : "text-gray-600"}`}
-            >
-              Suppliers
-            </button>
-            <button 
-              onClick={() => setActiveTab("purchases")}
-              className={`px-3 py-2 font-medium rounded-lg text-sm ${activeTab === "purchases" ? "bg-apple-blue text-white" : "text-gray-600"}`}
-            >
-              Purchases
-            </button>
-            <button 
-              onClick={() => setActiveTab("sales")}
-              className={`px-3 py-2 font-medium rounded-lg text-sm ${activeTab === "sales" ? "bg-apple-blue text-white" : "text-gray-600"}`}
-            >
-              Sales
-            </button>
-          </div>
-          <div className="w-64">
-            <Input 
-              type="search"
-              placeholder="Search..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="rounded-full"
-            />
+    <div className="min-h-screen bg-background">
+      <header className="sticky top-0 z-10 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container flex h-16 items-center justify-between px-4 md:px-6">
+          <MedConnectLogo size="medium" />
+          
+          <nav className="hidden md:flex gap-6 mr-4">
+            {navigationItems.map((item) => (
+              <Link 
+                key={item.href} 
+                to={item.href} 
+                className="text-sm font-medium transition-colors hover:text-primary"
+              >
+                {item.title}
+              </Link>
+            ))}
+          </nav>
+          
+          <div className="flex items-center gap-4">
+            <div className="relative w-full max-w-sm md:w-80">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Search medicines, suppliers..."
+                className="w-full pl-8"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            
+            <MobileNavigation items={navigationItems} />
           </div>
         </div>
-
-        <div className="p-4">
-          {renderActiveTabContent()}
-        </div>
-      </div>
+      </header>
       
-      {/* Bottom Tab Bar */}
-      <TabBar activeTab="home" onChange={() => {}} />
+      <div className="container px-4 md:px-6 py-6">
+        <Tabs defaultValue="medicines" className="space-y-4">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+            <TabsList>
+              <TabsTrigger value="medicines">Medicines</TabsTrigger>
+              <TabsTrigger value="suppliers">Suppliers</TabsTrigger>
+              <TabsTrigger value="sales">Sales</TabsTrigger>
+              <TabsTrigger value="purchases">Purchases</TabsTrigger>
+            </TabsList>
+            
+            <div className="hidden sm:block">
+              <Button variant="outline" asChild>
+                <Link to="/risk-assessment">
+                  Health Risk Assessment
+                </Link>
+              </Button>
+            </div>
+          </div>
+          
+          <TabsContent value="medicines" className="space-y-4">
+            <MedicinesTable searchQuery={searchQuery} />
+          </TabsContent>
+          
+          <TabsContent value="suppliers" className="space-y-4">
+            <SuppliersTable searchQuery={searchQuery} />
+          </TabsContent>
+          
+          <TabsContent value="sales" className="space-y-4">
+            <SalesTable searchQuery={searchQuery} />
+          </TabsContent>
+          
+          <TabsContent value="purchases" className="space-y-4">
+            <PurchasesTable searchQuery={searchQuery} />
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 }
