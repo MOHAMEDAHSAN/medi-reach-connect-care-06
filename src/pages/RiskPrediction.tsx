@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -263,7 +264,7 @@ export default function RiskPrediction() {
                             <SelectItem value="non_smoker">Non-Smoker</SelectItem>
                             <SelectItem value="ex_smoker">Ex-Smoker</SelectItem>
                             <SelectItem value="light_smoker">Light Smoker (≤10/day)</SelectItem>
-                            <SelectItem value="heavy_smoker">Heavy Smoker (>10/day)</SelectItem>
+                            <SelectItem value="heavy_smoker">Heavy Smoker (&gt;10/day)</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
