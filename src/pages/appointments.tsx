@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Calendar, CalendarClock, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,9 +8,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
 import { HealthCard } from "@/components/health-card";
 import { MedConnectLogo } from "@/components/med-connect-logo";
+import { AppointmentBookingDialog } from "@/components/appointment-booking-dialog";
+import { useToast } from "@/hooks/use-toast";
 
-// Mock data for appointments
-const upcomingAppointments = [
+// Mock data for appointments - will be replaced with state
+const initialUpcomingAppointments = [
   {
     id: "appt1",
     doctorName: "Dr. Sarah Johnson",
@@ -29,7 +31,7 @@ const upcomingAppointments = [
   }
 ];
 
-const pastAppointments = [
+const initialPastAppointments = [
   {
     id: "past1",
     doctorName: "Dr. Lisa Wong",
@@ -71,6 +73,80 @@ const item = {
 };
 
 export default function AppointmentsPage() {
+  const [bookingDialogOpen, setBookingDialogOpen] = useState(false);
+  const [upcomingAppointments, setUpcomingAppointments] = useState(initialUpcomingAppointments);
+  const [pastAppointments, setPastAppointments] = useState(initialPastAppointments);
+  const { toast } = useToast();
+
+  // Function to handle booking a new appointment
+  const handleBookAppointment = (appointment: {
+    doctorName: string;
+    specialty: string;
+    date: Date;
+    time: string;
+    location: string;
+  }) => {
+    // Format the date
+    const formattedDate = format(appointment.date, "MMMM d, yyyy");
+    
+    // Create a new appointment object
+    const newAppointment = {
+      id: `appt${Date.now()}`, // Generate a unique ID
+      doctorName: appointment.doctorName,
+      specialty: appointment.specialty,
+      date: formattedDate,
+      time: appointment.time,
+      location: appointment.location,
+    };
+
+    // Add the new appointment to the upcoming appointments
+    setUpcomingAppointments([...upcomingAppointments, newAppointment]);
+
+    // Show success message
+    toast({
+      title: "Appointment Booked",
+      description: `Your appointment with ${appointment.doctorName} on ${formattedDate} has been scheduled.`,
+    });
+  };
+
+  // Function to handle appointment rescheduling
+  const handleRescheduleAppointment = (appointmentId: string) => {
+    toast({
+      title: "Reschedule Requested",
+      description: "Opening the calendar to reschedule your appointment.",
+    });
+    // In a real app, this would open a reschedule dialog
+    // For now, just show the message
+  };
+
+  // Function to get directions
+  const handleGetDirections = (location: string) => {
+    toast({
+      title: "Opening Maps",
+      description: `Getting directions to ${location}`,
+    });
+    // In a real app, this would open maps with the location
+  };
+
+  // Function to view appointment details
+  const handleViewDetails = (appointmentId: string) => {
+    toast({
+      title: "Appointment Details",
+      description: "Viewing detailed information about your past appointment.",
+    });
+    // In a real app, this would open a details modal
+  };
+
+  // Function to book similar appointment
+  const handleBookSimilar = (appointment: any) => {
+    setBookingDialogOpen(true);
+    toast({
+      title: "Book Similar Appointment",
+      description: `Setting up a new appointment with ${appointment.doctorName}.`,
+    });
+    // In a real app, this would pre-fill the form
+  };
+
   return (
     <div className="min-h-screen bg-background pb-20">
       <header className="sticky top-0 z-10 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -134,10 +210,19 @@ export default function AppointmentsPage() {
                       </div>
                     </div>
                     <div className="flex gap-2 mt-4">
-                      <Button variant="outline" size="sm" className="flex-1 rounded-full text-xs">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="flex-1 rounded-full text-xs"
+                        onClick={() => handleRescheduleAppointment(appointment.id)}
+                      >
                         Reschedule
                       </Button>
-                      <Button size="sm" className="flex-1 rounded-full bg-apple-blue text-xs">
+                      <Button 
+                        size="sm" 
+                        className="flex-1 rounded-full bg-apple-blue text-xs"
+                        onClick={() => handleGetDirections(appointment.location)}
+                      >
                         Directions
                       </Button>
                     </div>
@@ -146,7 +231,10 @@ export default function AppointmentsPage() {
               ))}
               
               <motion.div variants={item} className="mt-6">
-                <Button className="w-full bg-apple-blue hover:bg-apple-blue/90 rounded-full">
+                <Button 
+                  className="w-full bg-apple-blue hover:bg-apple-blue/90 rounded-full"
+                  onClick={() => setBookingDialogOpen(true)}
+                >
                   <Calendar className="mr-2 h-4 w-4" /> Book New Appointment
                 </Button>
               </motion.div>
@@ -181,10 +269,20 @@ export default function AppointmentsPage() {
                         </div>
                       </div>
                       <div className="flex gap-2 mt-4">
-                        <Button variant="outline" size="sm" className="text-xs">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="text-xs"
+                          onClick={() => handleViewDetails(appointment.id)}
+                        >
                           View Details
                         </Button>
-                        <Button variant="ghost" size="sm" className="text-xs">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-xs"
+                          onClick={() => handleBookSimilar(appointment)}
+                        >
                           Book Similar
                         </Button>
                       </div>
@@ -196,6 +294,27 @@ export default function AppointmentsPage() {
           </TabsContent>
         </Tabs>
       </main>
+
+      <AppointmentBookingDialog
+        open={bookingDialogOpen}
+        onOpenChange={setBookingDialogOpen}
+        onBookAppointment={handleBookAppointment}
+      />
     </div>
   );
+
+  function format(date: Date, format: string): string {
+    // Simple date formatter
+    const months = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+
+    const day = date.getDate();
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+
+    // Replace format placeholders
+    return format.replace("MMMM", month).replace("d", day.toString()).replace("yyyy", year.toString());
+  }
 }
