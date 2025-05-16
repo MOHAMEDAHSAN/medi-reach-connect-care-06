@@ -20,7 +20,7 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				sans: ['-apple-system', 'BlinkMacSystemFont', 'San Francisco', 'Helvetica Neue', 'sans-serif'],
+				sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'San Francisco', 'Helvetica Neue', 'sans-serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
@@ -84,6 +84,11 @@ export default {
 					red: '#FF453A',
 					yellow: '#FFD60A',
 					blue: '#0A84FF'
+				},
+				pharmacy: {
+					primary: '#34C759',
+					secondary: '#5AC8FA',
+					accent: '#AF52DE',
 				}
 			},
 			borderRadius: {

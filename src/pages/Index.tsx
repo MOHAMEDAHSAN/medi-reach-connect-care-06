@@ -1,8 +1,8 @@
 
-import { MediReachApp } from "@/components/app";
+import { PharmacyDashboard } from "@/components/pharmacy/pharmacy-dashboard";
 
 const Index = () => {
-  return <MediReachApp />;
+  return <PharmacyDashboard />;
 };
 
 export default Index;
