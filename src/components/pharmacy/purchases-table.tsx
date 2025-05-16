@@ -1,6 +1,7 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { pharmacyService } from "@/services/pharmacyService";
+import { Purchase } from "@/types/pharmacy";
 import {
   Table,
   TableHeader,
@@ -9,13 +10,31 @@ import {
   TableRow,
   TableCell
 } from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface PurchasesTableProps {
   searchQuery: string;
 }
 
 export function PurchasesTable({ searchQuery }: PurchasesTableProps) {
-  const purchases = pharmacyService.getPurchases();
+  const [purchases, setPurchases] = useState<Purchase[]>([]);
+  const [loading, setLoading] = useState(true);
+  
+  useEffect(() => {
+    const fetchPurchases = async () => {
+      setLoading(true);
+      try {
+        const data = await pharmacyService.getPurchases();
+        setPurchases(data);
+      } catch (error) {
+        console.error('Error fetching purchases:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchPurchases();
+  }, []);
   
   const filteredPurchases = purchases.filter(purchase => 
     purchase.medicine_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -56,7 +75,15 @@ export function PurchasesTable({ searchQuery }: PurchasesTableProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredPurchases.length > 0 ? (
+            {loading ? (
+              Array(4).fill(0).map((_, index) => (
+                <TableRow key={`loading-${index}`}>
+                  <TableCell colSpan={6}>
+                    <Skeleton className="h-12 w-full" />
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : filteredPurchases.length > 0 ? (
               filteredPurchases.map((purchase) => (
                 <TableRow key={purchase.purchase_id}>
                   <TableCell>{purchase.purchase_id}</TableCell>
@@ -64,7 +91,7 @@ export function PurchasesTable({ searchQuery }: PurchasesTableProps) {
                   <TableCell>{purchase.supplier_name}</TableCell>
                   <TableCell>{formatDate(purchase.purchase_date)}</TableCell>
                   <TableCell>{purchase.quantity}</TableCell>
-                  <TableCell>{formatCurrency(purchase.total_cost)}</TableCell>
+                  <TableCell>{formatCurrency(Number(purchase.total_cost))}</TableCell>
                 </TableRow>
               ))
             ) : (

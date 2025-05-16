@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { pharmacyService } from "@/services/pharmacyService";
 import { Medicine } from "@/types/pharmacy";
 import { 
@@ -10,13 +10,31 @@ import {
   TableRow,
   TableCell
 } from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface MedicinesTableProps {
   searchQuery: string;
 }
 
 export function MedicinesTable({ searchQuery }: MedicinesTableProps) {
-  const medicines = pharmacyService.getMedicines();
+  const [medicines, setMedicines] = useState<Medicine[]>([]);
+  const [loading, setLoading] = useState(true);
+  
+  useEffect(() => {
+    const fetchMedicines = async () => {
+      setLoading(true);
+      try {
+        const data = await pharmacyService.getMedicines();
+        setMedicines(data);
+      } catch (error) {
+        console.error('Error fetching medicines:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchMedicines();
+  }, []);
   
   const filteredMedicines = medicines.filter(medicine => 
     medicine.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -73,14 +91,22 @@ export function MedicinesTable({ searchQuery }: MedicinesTableProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredMedicines.length > 0 ? (
+            {loading ? (
+              Array(4).fill(0).map((_, index) => (
+                <TableRow key={`loading-${index}`}>
+                  <TableCell colSpan={8}>
+                    <Skeleton className="h-12 w-full" />
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : filteredMedicines.length > 0 ? (
               filteredMedicines.map((medicine) => (
                 <TableRow key={medicine.medicine_id}>
                   <TableCell>{medicine.medicine_id}</TableCell>
                   <TableCell className="font-medium">{medicine.name}</TableCell>
                   <TableCell>{medicine.category}</TableCell>
                   <TableCell>{medicine.manufacturer}</TableCell>
-                  <TableCell>{formatCurrency(medicine.price)}</TableCell>
+                  <TableCell>{formatCurrency(Number(medicine.price))}</TableCell>
                   <TableCell>{medicine.quantity_in_stock}</TableCell>
                   <TableCell>{formatDate(medicine.expiry_date)}</TableCell>
                   <TableCell>{getStockStatus(medicine)}</TableCell>

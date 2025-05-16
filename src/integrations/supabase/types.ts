@@ -9,7 +9,131 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      medicines: {
+        Row: {
+          category: string
+          expiry_date: string
+          manufacturer: string
+          medicine_id: number
+          name: string
+          price: number
+          quantity_in_stock: number
+        }
+        Insert: {
+          category: string
+          expiry_date: string
+          manufacturer: string
+          medicine_id?: number
+          name: string
+          price: number
+          quantity_in_stock: number
+        }
+        Update: {
+          category?: string
+          expiry_date?: string
+          manufacturer?: string
+          medicine_id?: number
+          name?: string
+          price?: number
+          quantity_in_stock?: number
+        }
+        Relationships: []
+      }
+      purchases: {
+        Row: {
+          medicine_id: number
+          purchase_date: string
+          purchase_id: number
+          quantity: number
+          supplier_id: number
+          total_cost: number
+        }
+        Insert: {
+          medicine_id: number
+          purchase_date: string
+          purchase_id?: number
+          quantity: number
+          supplier_id: number
+          total_cost: number
+        }
+        Update: {
+          medicine_id?: number
+          purchase_date?: string
+          purchase_id?: number
+          quantity?: number
+          supplier_id?: number
+          total_cost?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchases_medicine_id_fkey"
+            columns: ["medicine_id"]
+            isOneToOne: false
+            referencedRelation: "medicines"
+            referencedColumns: ["medicine_id"]
+          },
+          {
+            foreignKeyName: "purchases_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["supplier_id"]
+          },
+        ]
+      }
+      sales: {
+        Row: {
+          medicine_id: number
+          quantity_sold: number
+          sale_date: string
+          sale_id: number
+          total_amount: number
+        }
+        Insert: {
+          medicine_id: number
+          quantity_sold: number
+          sale_date: string
+          sale_id?: number
+          total_amount: number
+        }
+        Update: {
+          medicine_id?: number
+          quantity_sold?: number
+          sale_date?: string
+          sale_id?: number
+          total_amount?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_medicine_id_fkey"
+            columns: ["medicine_id"]
+            isOneToOne: false
+            referencedRelation: "medicines"
+            referencedColumns: ["medicine_id"]
+          },
+        ]
+      }
+      suppliers: {
+        Row: {
+          contact_number: string
+          email: string
+          name: string
+          supplier_id: number
+        }
+        Insert: {
+          contact_number: string
+          email: string
+          name: string
+          supplier_id?: number
+        }
+        Update: {
+          contact_number?: string
+          email?: string
+          name?: string
+          supplier_id?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

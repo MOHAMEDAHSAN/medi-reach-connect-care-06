@@ -1,6 +1,7 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { pharmacyService } from "@/services/pharmacyService";
+import { Supplier } from "@/types/pharmacy";
 import {
   Table,
   TableHeader,
@@ -9,13 +10,31 @@ import {
   TableRow,
   TableCell
 } from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface SuppliersTableProps {
   searchQuery: string;
 }
 
 export function SuppliersTable({ searchQuery }: SuppliersTableProps) {
-  const suppliers = pharmacyService.getSuppliers();
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [loading, setLoading] = useState(true);
+  
+  useEffect(() => {
+    const fetchSuppliers = async () => {
+      setLoading(true);
+      try {
+        const data = await pharmacyService.getSuppliers();
+        setSuppliers(data);
+      } catch (error) {
+        console.error('Error fetching suppliers:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchSuppliers();
+  }, []);
   
   const filteredSuppliers = suppliers.filter(supplier => 
     supplier.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -38,7 +57,15 @@ export function SuppliersTable({ searchQuery }: SuppliersTableProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredSuppliers.length > 0 ? (
+            {loading ? (
+              Array(3).fill(0).map((_, index) => (
+                <TableRow key={`loading-${index}`}>
+                  <TableCell colSpan={4}>
+                    <Skeleton className="h-12 w-full" />
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : filteredSuppliers.length > 0 ? (
               filteredSuppliers.map((supplier) => (
                 <TableRow key={supplier.supplier_id}>
                   <TableCell>{supplier.supplier_id}</TableCell>

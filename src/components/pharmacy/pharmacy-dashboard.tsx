@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TabBar } from "@/components/tab-bar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,10 +9,40 @@ import { PurchasesTable } from "@/components/pharmacy/purchases-table";
 import { SalesTable } from "@/components/pharmacy/sales-table";
 import { HealthCard } from "@/components/health-card";
 import { ArrowUpRight, PackageSearch, Users, ShoppingCart, CreditCard } from "lucide-react";
+import { pharmacyService } from "@/services/pharmacyService";
 
 export function PharmacyDashboard() {
   const [activeTab, setActiveTab] = useState("medicines");
   const [searchQuery, setSearchQuery] = useState("");
+  
+  const [medicineCount, setMedicineCount] = useState(0);
+  const [supplierCount, setSupplierCount] = useState(0);
+  const [purchaseCount, setPurchaseCount] = useState(0);
+  const [saleCount, setSaleCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  useEffect(() => {
+    const fetchCounts = async () => {
+      setIsLoading(true);
+      try {
+        const medicines = await pharmacyService.getMedicines();
+        const suppliers = await pharmacyService.getSuppliers();
+        const purchases = await pharmacyService.getPurchases();
+        const sales = await pharmacyService.getSales();
+        
+        setMedicineCount(medicines.length);
+        setSupplierCount(suppliers.length);
+        setPurchaseCount(purchases.length);
+        setSaleCount(sales.length);
+      } catch (error) {
+        console.error('Error fetching counts:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchCounts();
+  }, []);
 
   const renderActiveTabContent = () => {
     switch (activeTab) {
@@ -45,8 +75,13 @@ export function PharmacyDashboard() {
           indicatorColor="green"
         >
           <div className="flex justify-between items-center">
-            <p className="text-2xl font-bold">5</p>
-            <Button variant="ghost" size="sm" className="text-apple-blue">
+            <p className="text-2xl font-bold">{isLoading ? '...' : medicineCount}</p>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-apple-blue"
+              onClick={() => setActiveTab("medicines")}
+            >
               View <ArrowUpRight size={16} />
             </Button>
           </div>
@@ -58,8 +93,13 @@ export function PharmacyDashboard() {
           indicatorColor="blue"
         >
           <div className="flex justify-between items-center">
-            <p className="text-2xl font-bold">4</p>
-            <Button variant="ghost" size="sm" className="text-apple-blue">
+            <p className="text-2xl font-bold">{isLoading ? '...' : supplierCount}</p>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-apple-blue"
+              onClick={() => setActiveTab("suppliers")}
+            >
               View <ArrowUpRight size={16} />
             </Button>
           </div>
@@ -71,8 +111,13 @@ export function PharmacyDashboard() {
           indicatorColor="yellow"
         >
           <div className="flex justify-between items-center">
-            <p className="text-2xl font-bold">5</p>
-            <Button variant="ghost" size="sm" className="text-apple-blue">
+            <p className="text-2xl font-bold">{isLoading ? '...' : purchaseCount}</p>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-apple-blue"
+              onClick={() => setActiveTab("purchases")}
+            >
               View <ArrowUpRight size={16} />
             </Button>
           </div>
@@ -84,8 +129,13 @@ export function PharmacyDashboard() {
           indicatorColor="red"
         >
           <div className="flex justify-between items-center">
-            <p className="text-2xl font-bold">5</p>
-            <Button variant="ghost" size="sm" className="text-apple-blue">
+            <p className="text-2xl font-bold">{isLoading ? '...' : saleCount}</p>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-apple-blue"
+              onClick={() => setActiveTab("sales")}
+            >
               View <ArrowUpRight size={16} />
             </Button>
           </div>
