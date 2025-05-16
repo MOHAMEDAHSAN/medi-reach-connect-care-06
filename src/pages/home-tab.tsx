@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { HealthCard } from "@/components/health-card";
 import { MedicalCampCard } from "@/components/medical-camp-card";
-import { Heart, Ambulance, Info, Calendar, Pill, User, Check } from "lucide-react";
+import { Heart, Ambulance, Info, Calendar, Pill, User, Check, CalendarClock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
@@ -69,9 +69,9 @@ const medicalCamps = [
 
 // Mock data for emergency services
 const emergencyServices = [
-  { name: "Emergency Ambulance", phone: "108", icon: <Ambulance size={18} /> },
-  { name: "Covid Helpline", phone: "1075", icon: <Info size={18} /> },
-  { name: "Cardiac Ambulance", phone: "1050", icon: <Heart size={18} /> },
+  { name: "Emergency Ambulance", phone: "108", icon: <Ambulance size={16} /> },
+  { name: "Covid Helpline", phone: "1075", icon: <Info size={16} /> },
+  { name: "Cardiac Ambulance", phone: "1050", icon: <Heart size={16} /> },
 ];
 
 // Mock data for applications
@@ -80,26 +80,46 @@ const applications = [
     id: "app1", 
     name: "Appointment Booking", 
     description: "Book doctor appointments", 
-    icon: <Calendar size={20} /> 
+    icon: <Calendar size={18} /> 
   },
   { 
     id: "app2", 
     name: "Medication Tracker", 
     description: "Track your medications", 
-    icon: <Pill size={20} /> 
+    icon: <Pill size={18} /> 
   },
   { 
     id: "app3", 
     name: "Health Profile", 
     description: "Update your health profile", 
-    icon: <User size={20} /> 
+    icon: <User size={18} /> 
   },
   { 
     id: "app4", 
     name: "Symptom Checker", 
     description: "Check your symptoms", 
-    icon: <Check size={20} /> 
+    icon: <Check size={18} /> 
   },
+];
+
+// Mock data for appointments
+const appointments = [
+  {
+    id: "appt1",
+    doctorName: "Dr. Sarah Johnson",
+    specialty: "Cardiologist",
+    date: "May 18, 2025",
+    time: "10:30 AM",
+    location: "City Hospital",
+  },
+  {
+    id: "appt2",
+    doctorName: "Dr. Michael Chen",
+    specialty: "Dermatologist",
+    date: "May 24, 2025",
+    time: "2:15 PM",
+    location: "Medical Center",
+  }
 ];
 
 // Animation variants for staggered entry
@@ -143,15 +163,15 @@ export default function HomeTab() {
   ];
 
   return (
-    <div className="pb-24 pt-2 bg-background">
+    <div className="pb-24 pt-3 bg-background">
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="container px-4 mx-auto"
+        className="container px-5 mx-auto max-w-4xl"
       >
         {/* Category Filter */}
-        <div className="flex gap-2 overflow-x-auto hide-scrollbar py-3 mb-6">
+        <div className="flex gap-2 overflow-x-auto hide-scrollbar py-3 mb-7">
           {categories.map((category) => (
             <Button
               key={category.id}
@@ -181,17 +201,80 @@ export default function HomeTab() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {applications.map((app) => (
               <motion.div key={app.id} variants={item}>
-                <Card className="h-full hover:shadow-md transition-all duration-200 hover:scale-[1.02] cursor-pointer">
+                <Card className="h-full hover:shadow-md transition-all duration-200 hover:scale-[1.02] cursor-pointer bg-white">
                   <CardContent className="p-4 flex flex-col items-center text-center">
-                    <div className="w-12 h-12 rounded-full bg-apple-blue/10 flex items-center justify-center text-apple-blue mb-3 mt-2">
+                    <div className="w-10 h-10 rounded-full bg-apple-blue/10 flex items-center justify-center text-apple-blue mb-3 mt-2">
                       {app.icon}
                     </div>
-                    <h3 className="font-medium">{app.name}</h3>
-                    <p className="text-sm text-muted-foreground">{app.description}</p>
+                    <h3 className="font-medium text-sm">{app.name}</h3>
+                    <p className="text-xs text-muted-foreground mt-1">{app.description}</p>
                   </CardContent>
                 </Card>
               </motion.div>
             ))}
+          </div>
+        </motion.section>
+        
+        {/* Upcoming Appointments Section */}
+        <motion.section 
+          className="mb-8"
+          variants={container}
+          initial="hidden"
+          animate="show"
+          transition={{ delayChildren: 0.1 }}
+        >
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold">Upcoming Appointments</h2>
+            <Button variant="link" className="text-apple-blue p-0 h-auto hover:underline text-sm">
+              View All
+            </Button>
+          </div>
+          
+          <div className="space-y-4">
+            {appointments.length > 0 ? (
+              appointments.map((appointment) => (
+                <motion.div key={appointment.id} variants={item}>
+                  <HealthCard
+                    title={appointment.doctorName}
+                    icon={<CalendarClock size={16} />}
+                    indicatorColor="blue"
+                  >
+                    <div className="mt-2">
+                      <span className="inline-block bg-blue-100 text-blue-600 text-xs rounded-full px-2 py-0.5">{appointment.specialty}</span>
+                    </div>
+                    <div className="mt-3 space-y-1.5 text-sm">
+                      <div className="flex items-start">
+                        <div className="w-20 text-gray-500 text-xs">Date</div>
+                        <div>{appointment.date}</div>
+                      </div>
+                      <div className="flex items-start">
+                        <div className="w-20 text-gray-500 text-xs">Time</div>
+                        <div>{appointment.time}</div>
+                      </div>
+                      <div className="flex items-start">
+                        <div className="w-20 text-gray-500 text-xs">Location</div>
+                        <div>{appointment.location}</div>
+                      </div>
+                    </div>
+                    <div className="flex gap-2 mt-4">
+                      <Button variant="outline" size="sm" className="flex-1 rounded-full text-xs">
+                        Reschedule
+                      </Button>
+                      <Button size="sm" className="flex-1 rounded-full bg-apple-blue text-xs">
+                        Directions
+                      </Button>
+                    </div>
+                  </HealthCard>
+                </motion.div>
+              ))
+            ) : (
+              <motion.div variants={item}>
+                <Card className="p-6 text-center">
+                  <p className="text-gray-500 mb-3">No upcoming appointments</p>
+                  <Button className="rounded-full bg-apple-blue mx-auto">Book Appointment</Button>
+                </Card>
+              </motion.div>
+            )}
           </div>
         </motion.section>
         
@@ -231,10 +314,10 @@ export default function HomeTab() {
                   compact
                 >
                   <div className="flex justify-between items-center mt-2">
-                    <span className="font-semibold text-lg">{service.phone}</span>
+                    <span className="font-semibold text-base">{service.phone}</span>
                     <Button
                       size="sm"
-                      className="rounded-full bg-apple-red hover:bg-apple-red/90 transition-colors duration-200"
+                      className="rounded-full bg-apple-red hover:bg-apple-red/90 transition-colors duration-200 text-xs py-1 px-3 h-auto"
                     >
                       Call Now
                     </Button>
@@ -254,7 +337,7 @@ export default function HomeTab() {
         >
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold">Nearby Medical Camps</h2>
-            <Button variant="link" className="text-apple-blue p-0 h-auto hover:underline">
+            <Button variant="link" className="text-apple-blue p-0 h-auto hover:underline text-sm">
               View All
             </Button>
           </div>
@@ -276,12 +359,12 @@ export default function HomeTab() {
         >
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold">Government Schemes</h2>
-            <Button variant="link" className="text-apple-blue p-0 h-auto hover:underline">
+            <Button variant="link" className="text-apple-blue p-0 h-auto hover:underline text-sm">
               See All
             </Button>
           </div>
           
-          <div className="space-y-4">
+          <div className="space-y-4 pb-4">
             {medicalCamps
               .filter(camp => camp.isGovernmentScheme)
               .map((camp) => (
