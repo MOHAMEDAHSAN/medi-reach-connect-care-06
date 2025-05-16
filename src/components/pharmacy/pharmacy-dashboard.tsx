@@ -6,16 +6,19 @@ import { SuppliersTable } from "@/components/pharmacy/suppliers-table";
 import { SalesTable } from "@/components/pharmacy/sales-table";
 import { PurchasesTable } from "@/components/pharmacy/purchases-table";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { Search, Calendar, Ambulance } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { MedConnectLogo } from "@/components/med-connect-logo";
 import { MobileNavigation } from "@/components/mobile-navigation";
+import { motion } from "framer-motion";
 
 // Navigation items for both desktop and mobile
 const navigationItems = [
   { title: "Dashboard", href: "/" },
-  { title: "Health Risk Assessment", href: "/risk-assessment" }
+  { title: "Health Risk Assessment", href: "/risk-assessment" },
+  { title: "Appointments", href: "/appointments" },
+  { title: "Emergency Cases", href: "/emergency-cases" }
 ];
 
 export function PharmacyDashboard() {
@@ -57,6 +60,29 @@ export function PharmacyDashboard() {
       </header>
       
       <div className="container px-4 md:px-6 py-6">
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="flex flex-wrap gap-3 mb-6"
+        >
+          <Button asChild className="bg-apple-blue hover:bg-apple-blue/90 rounded-full">
+            <Link to="/appointments">
+              <Calendar className="mr-2 h-4 w-4" /> Appointments
+            </Link>
+          </Button>
+          <Button asChild className="bg-apple-red hover:bg-apple-red/90 rounded-full">
+            <Link to="/emergency-cases">
+              <Ambulance className="mr-2 h-4 w-4" /> Emergency Cases
+            </Link>
+          </Button>
+          <Button variant="outline" asChild className="rounded-full">
+            <Link to="/risk-assessment">
+              Health Risk Assessment
+            </Link>
+          </Button>
+        </motion.div>
+
         <Tabs defaultValue="medicines" className="space-y-4">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
             <TabsList>
@@ -65,14 +91,6 @@ export function PharmacyDashboard() {
               <TabsTrigger value="sales">Sales</TabsTrigger>
               <TabsTrigger value="purchases">Purchases</TabsTrigger>
             </TabsList>
-            
-            <div className="hidden sm:block">
-              <Button variant="outline" asChild>
-                <Link to="/risk-assessment">
-                  Health Risk Assessment
-                </Link>
-              </Button>
-            </div>
           </div>
           
           <TabsContent value="medicines" className="space-y-4">
